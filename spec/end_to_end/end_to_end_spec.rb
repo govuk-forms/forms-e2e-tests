@@ -59,8 +59,15 @@ feature "Full lifecycle of a form", type: :feature do
 
       click_link "your questions", match: :first
 
-      add_a_route selection_question, if_the_answer_selected_is: "Yes", skip_the_person_to: alternate_question_text
-      add_a_secondary_skip last_question_before_skip: question_text, question_to_skip_to: "End of the form"
+      if page.has_selector?(:link, "Add a question route")
+        add_a_route selection_question, if_the_answer_selected_is: "Yes", skip_the_person_to: alternate_question_text
+        add_a_secondary_skip last_question_before_skip: question_text, question_to_skip_to: "End of the form"
+      else
+        add_routes do
+          select_route selection_question, if_option: "Yes", go_to: alternate_question_text
+          select_route question_text, go_to: "End of the form"
+        end
+      end
 
       finish_form_creation
 

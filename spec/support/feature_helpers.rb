@@ -242,6 +242,27 @@ module FeatureHelpers
     click_button "Save and continue"
   end
 
+  def add_routes
+    expect(page).to have_css("h1", text: "Add and edit your questions")
+    click_on "Add routes"
+
+    expect(page).to have_css "h1", text: "Edit question routes"
+
+    yield
+
+    click_button "Save and continue"
+    expect(page).to have_css ".govuk-notification-banner", text: "Your routes have been saved"
+  end
+
+  def select_route(question, go_to:, if_option: nil)
+    question = find(:xpath, ".//p[contains(., '#{question}')]/..")
+
+    question.select(
+      go_to,
+      from: if_option ? "(#{if_option}), go to:" : "After question",
+    )
+  end
+
   def add_a_secondary_skip(last_question_before_skip:, question_to_skip_to:)
     click_on "Set questions to skip"
 
