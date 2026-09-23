@@ -226,22 +226,6 @@ module FeatureHelpers
     click_button "Save question"
   end
 
-  def add_a_route(question_to_add_a_route_from, if_the_answer_selected_is:, skip_the_person_to:)
-    expect(page).to have_css "h1", text: "Add and edit your questions"
-    click_link "Add a question route"
-
-    expect(page).to have_css "h1", text: "Add a route from a question"
-    choose question_to_add_a_route_from, visible: false
-    click_button "Continue"
-
-    expect(page).to have_css "h1", text: "Add route"
-
-    select if_the_answer_selected_is, from: "If the answer selected is"
-
-    select skip_the_person_to, from: "to"
-    click_button "Save and continue"
-  end
-
   def add_routes
     expect(page).to have_css("h1", text: "Add and edit your questions")
     click_on "Add routes"
@@ -261,21 +245,6 @@ module FeatureHelpers
       go_to,
       from: if_option ? "(#{if_option}), go to:" : "After question",
     )
-  end
-
-  def add_a_secondary_skip(last_question_before_skip:, question_to_skip_to:)
-    click_on "Set questions to skip"
-
-    expect(page).to have_css "h1", text: "Route for any other answer: set questions to skip"
-
-    select last_question_before_skip, from: "Select the last question you want them to answer before they skip"
-    select question_to_skip_to, from: "Select the question to skip them to"
-
-    click_button "Save and continue"
-
-    if page.find("h1").has_content?(/Question \d+’s routes/)
-      click_link("Back to your questions", match: :first)
-    end
   end
 
   def mark_pages_task_complete
