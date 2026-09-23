@@ -239,7 +239,7 @@ module FeatureHelpers
   end
 
   def select_route(question, go_to:, if_option: nil)
-    question = find(:xpath, ".//h2[contains(., '#{question}')]/.. | .//p[contains(., '#{question}')]/..")
+    question = find(:xpath, ".//h2[contains(., '#{question}')]/..")
 
     question.select(
       go_to,
