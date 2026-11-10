@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby file: ".ruby-version"
 
 gem "activesupport"
-gem "aws-sdk-s3", "~> 1.234"
+gem "aws-sdk-s3", "~> 1.237"
 gem "capybara"
 gem "config"
 gem "debug"
