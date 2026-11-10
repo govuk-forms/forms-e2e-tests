@@ -423,16 +423,31 @@ module FeatureHelpers
       end
     end
 
+    logger.info "When I click the submit button"
     click_button "Submit"
 
+    logger.info "Then I can see that my answers have been submitted"
     expect(page).to have_content "Your form has been submitted"
+
+    submission_reference = page.find("#submission-reference").text
+
+    if copy_of_answers
+      logger.info "When I click the button to sign out"
+      click_button "Sign out of GOV.UK One Login"
+
+      logger.info "Then I am see the 'You have signed out' page of GOV.UK One Login"
+      expect(page).to have_content "You have signed out"
+
+      logger.info "And I am signed out of GOV.UK One Login"
+      # if we are still signed in this link not make us sign in again
+      click_link "sign in to your GOV.UK One Login"
+      expect(page).to have_current_path(%r{\Ahttps://signin(?:\.integration)?\.account\.gov\.uk}, url: true)
+    end
 
     logger.info
     logger.info "As a form processor"
     logger.info "When a form filler has submitted their answers"
     logger.info "Then I can see their submission in my email inbox"
-
-    submission_reference = page.find("#submission-reference").text
 
     check_submission(submission_reference)
 
