@@ -8,7 +8,7 @@ forms_admin:
 forms_product_page:
   url: https://www.forms.service.gov.uk
 
-forms_runner_url:
+forms_runner:
   url: https://submit.forms.service.gov.uk
 
 aws:
