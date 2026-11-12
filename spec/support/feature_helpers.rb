@@ -50,7 +50,7 @@ module FeatureHelpers
     "#{forms_runner_url}/submission"
   end
 
-  def finish_form_creation
+  def finish_form_creation(save_and_return: false)
     mark_pages_task_complete
 
     next_form_creation_step "Add a declaration for people to agree to"
@@ -79,6 +79,7 @@ module FeatureHelpers
     click_button "Save and continue"
 
     enable_copy_of_answers
+    enable_save_and_return if save_and_return
 
     next_form_creation_step "Share a preview of your draft form"
 
@@ -293,6 +294,15 @@ module FeatureHelpers
     expect(page).to have_css "h1", text: "Give people the option to get a copy of their answers by email"
 
     check "Give people the option to get a copy of their answers by email - I’m ok with the risk", visible: false
+    click_button "Save and continue"
+  end
+
+  def enable_save_and_return
+    next_form_creation_step "Give people the option to save their progress and return later"
+
+    expect(page).to have_css "h1", text: "Give people the option to save their progress and return later"
+
+    check "Give people the option to save their progress and return later", visible: false
     click_button "Save and continue"
   end
 
