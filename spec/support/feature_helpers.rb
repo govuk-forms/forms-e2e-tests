@@ -635,6 +635,14 @@ module FeatureHelpers
     evaluate_boolean_env_var("SKIP_COPY_OF_ANSWERS")
   end
 
+  def skip_save_and_return?
+    evaluate_boolean_env_var("SKIP_SAVE_AND_RETURN")
+  end
+
+  def save_and_return_enabled?
+    !skip_save_and_return?
+  end
+
   def skip_s3?
     evaluate_boolean_env_var("SKIP_S3")
   end
