@@ -64,7 +64,7 @@ feature "Full lifecycle of a form", type: :feature do
         select_route question_text, go_to: "End of the form"
       end
 
-      finish_form_creation
+      finish_form_creation(save_and_return: save_and_return_enabled?)
 
       logger.info "And make it live"
       make_form_live_and_return_to_form_details
@@ -89,9 +89,15 @@ feature "Full lifecycle of a form", type: :feature do
           logger.info "Scenario: Form is completed by a member of the public, and they request a copy of their answers"
           form_is_filled_in_by_form_filler(live_form_link, copy_of_answers: true)
         end
+
+        if save_and_return_enabled?
+          logger.info "Scenario: Form filler saves their progress and returns later"
+          form_is_saved_and_resumed_by_form_filler(live_form_link)
+        end
       end
 
-      visit_admin
+      # Save and return resets the browser session, which signs us out of forms-admin
+      save_and_return_enabled? ? sign_in_to_admin : visit_admin
       visit_end_to_end_tests_group
       delete_form(form_name)
     end

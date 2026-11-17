@@ -50,7 +50,7 @@ module FeatureHelpers
     "#{forms_runner_url}/submission"
   end
 
-  def finish_form_creation
+  def finish_form_creation(save_and_return: false)
     mark_pages_task_complete
 
     next_form_creation_step "Add a declaration for people to agree to"
@@ -79,6 +79,7 @@ module FeatureHelpers
     click_button "Save and continue"
 
     enable_copy_of_answers
+    enable_save_and_return if save_and_return
 
     next_form_creation_step "Share a preview of your draft form"
 
@@ -296,6 +297,15 @@ module FeatureHelpers
     click_button "Save and continue"
   end
 
+  def enable_save_and_return
+    next_form_creation_step "Give people the option to save their progress and return later"
+
+    expect(page).to have_css "h1", text: "Give people the option to save their progress and return later"
+
+    check "Give people the option to save their progress and return later", visible: false
+    click_button "Save and continue"
+  end
+
   def delete_form(form_name)
     if page.has_link?(form_name)
       click_link(form_name, match: :one, exact: true)
@@ -320,6 +330,8 @@ module FeatureHelpers
 
     logger.info "When I fill out the new form"
     visit live_form_link
+
+    start_new_form_if_save_and_return_enabled
 
     unless skip_file_upload?
       logger.info "And I can upload a file"
@@ -373,21 +385,7 @@ module FeatureHelpers
       click_button "Continue to GOV.UK One Login"
 
       logger.info "Then I log in using GOV.UK One Login"
-      expect(page).to have_current_path(%r{\Ahttps://signin(?:\.integration)?\.account\.gov\.uk}, url: true)
-      click_button "Sign in"
-
-      find('input[type="email"]', visible: true).set(Settings.govuk_one_login.user_email)
-      find('button[type="submit"]').click
-
-      find('input[type="password"]', visible: true).set(Settings.govuk_one_login.user_password)
-      find('button[type="submit"]').click
-
-      find('input[autocomplete="one-time-code"]', visible: true).set(generate_one_login_otp)
-      find('button[type="submit"]').click
-
-      if page.has_text? "Set up a passkey"
-        click_button "Skip for now"
-      end
+      sign_in_to_one_login
     else
       logger.info "And I choose 'No'"
       choose "No", visible: false
@@ -463,6 +461,64 @@ module FeatureHelpers
     if copy_of_answers
       wait_for_copy_of_answers_email(submission_reference)
     end
+  end
+
+  def form_is_saved_and_resumed_by_form_filler(live_form_link)
+    logger.info
+    logger.info "As a form filler"
+    logger.info "When I start the form and want to save my progress"
+    visit live_form_link
+
+    start_new_form_if_save_and_return_enabled
+
+    upload_a_file unless skip_file_upload?
+
+    logger.info "And I answer the first question"
+    expect(page).to have_css "h1", text: "What is your favourite colour?"
+    within_fieldset("What is your favourite colour?") do
+      choose "None of the above", visible: false
+      fill_in "Enter your favourite colour", with: "Yellow"
+    end
+    click_button "Continue"
+
+    logger.info "When I choose to save and exit"
+    expect(page).to have_css "h1", text: selection_question
+    click_button "Save and exit"
+
+    logger.info "Then I am asked to sign in with GOV.UK One Login to save my progress"
+    expect(page).to have_css "h1", text: "Use GOV.UK One Login to save your progress"
+    click_button "Continue to GOV.UK One Login"
+
+    sign_in_to_one_login
+
+    logger.info "And I can see my progress has been saved"
+    expect(page).to have_content "Your progress has been saved"
+
+    # TODO: replace with signing out of GOV.UK One Login once that is available
+    logger.info "When I come back to the form later"
+    Capybara.reset_sessions!
+    visit live_form_link
+
+    logger.info "And I choose to continue filling in my saved form"
+    expect(page).to have_css "h1", text: "What do you want to do?"
+    choose "Continue filling in a saved form", visible: false
+    click_button "Continue"
+
+    logger.info "Then I am asked to sign in with GOV.UK One Login"
+    expect(page).to have_css "h1", text: "Sign in to your GOV.UK One Login"
+    click_button "Continue to GOV.UK One Login"
+
+    sign_in_to_one_login
+
+    logger.info "And I can see the answers I saved"
+    unless skip_file_upload?
+      expect(page).to have_content "Check your uploaded file"
+      expect(page).to have_content File.basename(test_file)
+      click_button "Continue"
+    end
+
+    expect(page).to have_css "h1", text: "What is your favourite colour?"
+    expect(page).to have_field "Enter your favourite colour", with: "Yellow"
   end
 
   def upload_file_and_submit(live_form_link)
@@ -558,6 +614,32 @@ module FeatureHelpers
     click_button "Continue"
     expect(page).to have_content "Your file has been uploaded", wait: 1 * SECONDS_PER_MINUTE # file uploads can take a long time
     click_button "Continue"
+  end
+
+  def start_new_form_if_save_and_return_enabled
+    return unless save_and_return_enabled?
+
+    expect(page).to have_css "h1", text: "What do you want to do?"
+    choose "Start a new form", visible: false
+    click_button "Continue"
+  end
+
+  def sign_in_to_one_login
+    expect(page).to have_current_path(%r{\Ahttps://signin(?:\.integration)?\.account\.gov\.uk}, url: true)
+    click_button "Sign in"
+
+    find('input[type="email"]', visible: true).set(Settings.govuk_one_login.user_email)
+    find('button[type="submit"]').click
+
+    find('input[type="password"]', visible: true).set(Settings.govuk_one_login.user_password)
+    find('button[type="submit"]').click
+
+    find('input[autocomplete="one-time-code"]', visible: true).set(generate_one_login_otp)
+    find('button[type="submit"]').click
+
+    if page.has_text? "Set up a passkey"
+      click_button "Skip for now"
+    end
   end
 
   def sign_in_to_admin
