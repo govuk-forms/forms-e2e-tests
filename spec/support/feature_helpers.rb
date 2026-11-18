@@ -492,6 +492,13 @@ module FeatureHelpers
     sign_out_of_one_login_from_header
     expect_to_be_signed_out_of_one_login
 
+    logger.info "And I start a new form to clear the answers in my session"
+    visit live_form_link
+    start_new_form_if_save_and_return_enabled
+    upload_a_file unless skip_file_upload?
+    expect(page).to have_css "h1", text: "What is your favourite colour?"
+    expect(page).not_to have_checked_field "None of the above", visible: :all
+
     logger.info "And I come back to the form later"
     visit live_form_link
 

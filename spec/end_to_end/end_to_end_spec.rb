@@ -96,8 +96,7 @@ feature "Full lifecycle of a form", type: :feature do
         end
       end
 
-      # Save and return resets the browser session, which signs us out of forms-admin
-      save_and_return_enabled? ? sign_in_to_admin : visit_admin
+      visit_admin
       visit_end_to_end_tests_group
       delete_form(form_name)
     end
