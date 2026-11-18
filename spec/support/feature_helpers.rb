@@ -433,13 +433,7 @@ module FeatureHelpers
       logger.info "When I click the button to sign out"
       click_button "Sign out of GOV.UK One Login"
 
-      logger.info "Then I am see the 'You have signed out' page of GOV.UK One Login"
-      expect(page).to have_content "You have signed out"
-
-      logger.info "And I am signed out of GOV.UK One Login"
-      # if we are still signed in this link not make us sign in again
-      click_link "sign in to your GOV.UK One Login"
-      expect(page).to have_current_path(%r{\Ahttps://signin(?:\.integration)?\.account\.gov\.uk}, url: true)
+      expect_to_be_signed_out_of_one_login
     end
 
     logger.info
@@ -640,6 +634,16 @@ module FeatureHelpers
     if page.has_text? "Set up a passkey"
       click_button "Skip for now"
     end
+  end
+
+  def expect_to_be_signed_out_of_one_login
+    logger.info "Then I am see the 'You have signed out' page of GOV.UK One Login"
+    expect(page).to have_content "You have signed out"
+
+    logger.info "And I am signed out of GOV.UK One Login"
+    # if we are still signed in this link not make us sign in again
+    click_link "sign in to your GOV.UK One Login"
+    expect(page).to have_current_path(%r{\Ahttps://signin(?:\.integration)?\.account\.gov\.uk}, url: true)
   end
 
   def sign_in_to_admin
