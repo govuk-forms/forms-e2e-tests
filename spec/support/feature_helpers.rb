@@ -488,9 +488,11 @@ module FeatureHelpers
     logger.info "And I can see my progress has been saved"
     expect(page).to have_content "Your progress has been saved"
 
-    # TODO: replace with signing out of GOV.UK One Login once that is available
-    logger.info "When I come back to the form later"
-    Capybara.reset_sessions!
+    logger.info "When I sign out of GOV.UK One Login"
+    sign_out_of_one_login_from_header
+    expect_to_be_signed_out_of_one_login
+
+    logger.info "And I come back to the form later"
     visit live_form_link
 
     logger.info "And I choose to continue filling in my saved form"
@@ -644,6 +646,14 @@ module FeatureHelpers
     # if we are still signed in this link not make us sign in again
     click_link "sign in to your GOV.UK One Login"
     expect(page).to have_current_path(%r{\Ahttps://signin(?:\.integration)?\.account\.gov\.uk}, url: true)
+  end
+
+  def sign_out_of_one_login_from_header
+    within ".one-login-header" do
+      # in a small viewport the menu is collapsed behind a "One Login" toggle
+      find(".cross-service-header__toggle").click if page.has_css?(".cross-service-header__toggle", wait: 0)
+      click_button "Sign out"
+    end
   end
 
   def sign_in_to_admin
