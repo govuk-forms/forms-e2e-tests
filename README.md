@@ -89,10 +89,6 @@ The end to end tests can be run without testing a form with a file upload questi
 
 The end to end tests can be run without testing receiving a copy of answers using GOV.UK One Login by setting the `SKIP_COPY_OF_ANSWERS` environment variable to `1`.
 
-### Skipping save and return using GOV.UK One Login
-
-The end to end tests can be run without testing saving progress and returning to a form using GOV.UK One Login by setting the `SKIP_SAVE_AND_RETURN` environment variable to `1`. When skipped, save and return is not turned on for the test form.
-
 ### Running the s3 submission test
 
 The S3 submission tests use a form created by the forms-admin seed data locally. On remote environments, it uses forms configured manually by us, with the form ID passed in using the `SETTINGS__FORM_IDS__S3` environment variable.
@@ -117,21 +113,6 @@ The tests need to assume an IAM role to check the email with a copy of the answe
 gds aws forms-dev-readonly --shell
 
 SKIP_COPY_OF_ANSWERS=0 \
-SETTINGS__GOVUK_ONE_LOGIN__USER_PASSWORD=<password> \
-SETTINGS__GOVUK_ONE_LOGIN__USER_OTP_SECRET_KEY=<secret key> \
-bundle exec rake
-```
-
-### Running the test to save progress and return using GOV.UK One Login
-
-forms-runner needs to be started with the One Login client details, as for the copy of answers test above.
-
-The `save_and_return` feature must be enabled for the "End to end tests" group in forms-admin, otherwise the option to turn it on for the test form will not be shown.
-
-Run the tests with the One Login sign in details for the test user:
-
-```shell
-SKIP_SAVE_AND_RETURN=0 \
 SETTINGS__GOVUK_ONE_LOGIN__USER_PASSWORD=<password> \
 SETTINGS__GOVUK_ONE_LOGIN__USER_OTP_SECRET_KEY=<secret key> \
 bundle exec rake

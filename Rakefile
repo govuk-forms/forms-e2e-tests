@@ -11,7 +11,6 @@ RSpec::Core::RakeTask.new(:end_to_end) do |task|
   ENV["SKIP_S3"] ||= "1"
   ENV["SKIP_FILE_UPLOAD"] ||= "1"
   ENV["SKIP_COPY_OF_ANSWERS"] ||= "1"
-  ENV["SKIP_SAVE_AND_RETURN"] ||= "1"
 
   task.pattern = %(spec/end_to_end)
   task.verbose = false
