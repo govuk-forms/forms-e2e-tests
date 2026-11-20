@@ -40,6 +40,8 @@ feature "Full lifecycle of a form", type: :feature do
       delete_form(form_name)
       create_form_with_name(form_name)
 
+      logger.debug "Created form at #{current_url}"
+
       next_form_creation_step "Add and edit your questions"
 
       # Add question to test file upload
