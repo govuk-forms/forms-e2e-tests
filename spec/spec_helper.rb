@@ -28,6 +28,9 @@ if ENV["USE_CUPRITE"]
   end
 else
   require "selenium/webdriver"
+  require_relative "support/selenium_patches/clear_storage_without_wildcard_origin"
+
+  Capybara::Selenium::Driver::ChromeDriver.prepend(SeleniumPatches::ClearStorageWithoutWildcardOrigin)
 
   options = Selenium::WebDriver::Chrome::Options.new
   options.add_preference(:download, prompt_for_download: false,
