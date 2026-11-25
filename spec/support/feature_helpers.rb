@@ -503,9 +503,7 @@ module FeatureHelpers
     visit live_form_link
 
     logger.info "And I choose to continue filling in my saved form"
-    expect(page).to have_css "h1", text: "What do you want to do?"
-    choose "Continue filling in a saved form", visible: false
-    click_button "Continue"
+    choose_save_and_return_start_option(start_new_form: false)
 
     logger.info "Then I am asked to sign in with GOV.UK One Login"
     expect(page).to have_css "h1", text: "Sign in to your GOV.UK One Login"
@@ -622,8 +620,20 @@ module FeatureHelpers
   def start_new_form_if_save_and_return_enabled
     return unless save_and_return_enabled?
 
-    expect(page).to have_css "h1", text: "What do you want to do?"
-    choose "Start a new form", visible: false
+    choose_save_and_return_start_option(start_new_form: true)
+  end
+
+  # TODO: remove support for the old content once the new content has been deployed to all environments
+  def choose_save_and_return_start_option(start_new_form:)
+    heading = find("h1", text: /\A(What do you want to do\?|Do you want to start a new form\?)\z/)
+
+    label = if heading.text == "Do you want to start a new form?"
+              start_new_form ? "Yes, start a new form" : "No, continue filling in a saved form"
+            else
+              start_new_form ? "Start a new form" : "Continue filling in a saved form"
+            end
+
+    choose label, visible: false
     click_button "Continue"
   end
 
